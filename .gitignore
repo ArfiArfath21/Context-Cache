@@ -22,3 +22,4 @@ desktop/ui/node_modules/
 desktop/ui/dist/
 config/config.yaml
 .env.local
+desktop/src-tauri/target/

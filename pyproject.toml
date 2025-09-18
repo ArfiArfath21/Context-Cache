@@ -14,7 +14,6 @@ dependencies = [
   "pymupdf>=1.24",
   "python-docx>=1.1",
   "markdown-it-py>=3.0",
-  "textract==1.6.5",
   "sentence-transformers>=3.0",
   "faiss-cpu>=1.8.0",
   "numpy>=1.26",
@@ -46,3 +45,13 @@ select = ["E", "F", "I", "B", "W", "UP", "SIM"]
 
 [tool.ruff.isort]
 known-first-party = ["context_cache"]
+
+[tool.setuptools]
+package-dir = {"" = "backend"}
+
+[tool.setuptools.packages.find]
+where = ["backend"]
+include = ["context_cache*"]
+
+[project.scripts]
+ctxc = "context_cache.cli.main:app"

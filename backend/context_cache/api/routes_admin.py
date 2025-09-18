@@ -72,6 +72,11 @@ async def create_source(
     return _row_to_source(row)
 
 
+# Options call for /sources
+@router.options("/sources", summary="Options for /sources")
+async def options_sources():
+    return
+
 @router.patch("/sources/{source_id}", response_model=SourceResponse, summary="Update an existing source")
 async def update_source(
     source_id: str,

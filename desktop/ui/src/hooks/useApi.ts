@@ -1,13 +1,22 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 
 const DEFAULT_HOST = "http://127.0.0.1:5173";
 
 export function useBackendHost() {
-  return useMemo(() => {
-    const stored = localStorage.getItem("ctxc-host");
-    return stored || DEFAULT_HOST;
+  const [host, setHost] = useState(() => localStorage.getItem("ctxc-host") || DEFAULT_HOST);
+
+  useEffect(() => {
+    const update = () => setHost(localStorage.getItem("ctxc-host") || DEFAULT_HOST);
+    window.addEventListener("storage", update);
+    window.addEventListener("ctxc-host-changed", update as EventListener);
+    return () => {
+      window.removeEventListener("storage", update);
+      window.removeEventListener("ctxc-host-changed", update as EventListener);
+    };
   }, []);
+
+  return host;
 }
 
 export function useApi<T>(request: () => Promise<T>, deps: unknown[] = []) {
@@ -44,9 +53,9 @@ export async function apiClient(path: string, init?: RequestInit) {
 
 export async function axiosClient<T>(path: string, method: "get" | "post" | "delete" = "get", body?: unknown) {
   const host = localStorage.getItem("ctxc-host") || DEFAULT_HOST;
-  const url = `${host.replace(/\/$/, "")}${path}`;
-  const instance = axios.create({ baseURL: host.replace(/\/$/, "") });
-  const response = await instance.request<T>({
+  const baseURL = host.replace(/\/$/, "");
+  const response = await axios.request<T>({
+    baseURL,
     url: path,
     method,
     data: method === "get" || method === "delete" ? undefined : body

@@ -1,4 +1,7 @@
+import { useEffect } from "react";
+
 import type { ChunkResult } from "../types";
+import { openExternalLink } from "../utils/external";
 
 interface Props {
   result: ChunkResult;
@@ -6,48 +9,74 @@ interface Props {
 }
 
 export default function ProvenancePanel({ result, onClose }: Props) {
+  useEffect(() => {
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
+  const provenance = result.provenance;
+
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: "rgba(0,0,0,0.4)",
-        display: "grid",
-        placeItems: "center",
-        zIndex: 99
-      }}
-    >
-      <div className="panel" style={{ width: "min(600px, 90vw)" }}>
-        <header style={{ display: "flex", justifyContent: "space-between" }}>
-          <h3 style={{ margin: 0 }}>Provenance</h3>
-          <button className="button" onClick={onClose}>
+    <div className="drawer" role="dialog" aria-modal="true" onClick={onClose}>
+      <aside className="drawer-panel" onClick={(event) => event.stopPropagation()}>
+        <header className="drawer-header">
+          <div>
+            <h3>Chunk details</h3>
+            <p className="panel-subtitle">
+              Chunk {result.chunk_id} · Score {result.score.toFixed(2)}
+            </p>
+          </div>
+          <button className="button-outline" type="button" onClick={onClose}>
             Close
           </button>
         </header>
-        <dl>
-          <dt>Document</dt>
-          <dd>{result.provenance?.document_id}</dd>
-          <dt>Source</dt>
-          <dd>{result.provenance?.uri || "Unknown"}</dd>
-          <dt>Offsets</dt>
-          <dd>
-            {result.start_char} – {result.end_char}
-          </dd>
-          <dt>Deep Link</dt>
-          <dd>
-            {result.provenance?.deep_link ? (
-              <a href={result.provenance.deep_link as string} target="_blank" rel="noreferrer">
-                {result.provenance.deep_link as string}
-              </a>
-            ) : (
-              "—"
-            )}
-          </dd>
-        </dl>
-      </div>
+
+        <section className="drawer-section">
+          <h4>Excerpt</h4>
+          <pre className="excerpt">{result.text}</pre>
+        </section>
+
+        <section className="drawer-section">
+          <h4>Metadata</h4>
+          <dl className="meta-grid">
+            <div>
+              <dt>Document ID</dt>
+              <dd>{provenance?.document_id ?? "—"}</dd>
+            </div>
+            <div>
+              <dt>Source URI</dt>
+              <dd style={{ wordBreak: "break-word" }}>{provenance?.uri ?? "Unknown"}</dd>
+            </div>
+            <div>
+              <dt>Offsets</dt>
+              <dd>
+                {result.start_char} – {result.end_char}
+              </dd>
+            </div>
+            <div>
+              <dt>Deep link</dt>
+              <dd>
+                {typeof provenance?.deep_link === "string" && provenance.deep_link.trim() ? (
+                  <button
+                    className="button-outline"
+                    type="button"
+                    onClick={() => void openExternalLink(provenance.deep_link as string)}
+                  >
+                    Open source
+                  </button>
+                ) : (
+                  <span className="status-note">No deep link available</span>
+                )}
+              </dd>
+            </div>
+          </dl>
+        </section>
+      </aside>
     </div>
   );
 }
