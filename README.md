@@ -2,6 +2,8 @@
 
 Context Cache is a local-first knowledge layer that watches your files, builds a private retrieval index, and exposes a friendly API, CLI, and desktop experience for querying your own data.
 
+<img src="./desktop/ui/src/assets/logo.png" alt="Context Cache" style="display: block; margin: auto;"/>
+
 ## Features
 
 - **Ingestion pipeline** for Markdown, plain text, DOCX, EML/MBOX, and PDF (via PyMuPDF when available)
