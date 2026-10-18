@@ -4,7 +4,11 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Iterable, Sequence
+from difflib import SequenceMatcher
+from typing import TYPE_CHECKING, Sequence
+
+if TYPE_CHECKING:
+    import numpy as np
 
 try:
     from rapidfuzz import fuzz
@@ -73,6 +77,11 @@ def _order_by_scores(candidates: Sequence[dict], scores: np.ndarray) -> list[dic
         candidate = candidates[int(idx)]
         ranked.append({**candidate, "rerank_score": float(score)})
     return ranked
+
+
+def _fallback_similarity(query: str, text: str) -> float:
+    """Deterministic 0-1 similarity used when rapidfuzz is not installed."""
+    return SequenceMatcher(None, query.lower(), text.lower()).ratio()
 
 
 def _fallback_rerank(query: str, candidates: Sequence[dict]) -> list[dict]:
