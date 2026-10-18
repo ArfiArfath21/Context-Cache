@@ -132,7 +132,6 @@ def _split_segment(segment: Segment, max_tokens: int) -> list[Segment]:
     segments: list[Segment] = []
     cursor = 0
     while cursor < length:
-        next_cursor = segment.start + min(length, cursor + step)
         segments.append(
             Segment(
                 text=segment.text[cursor : cursor + step],
